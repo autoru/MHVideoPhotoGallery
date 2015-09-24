@@ -338,6 +338,10 @@
         [self.cellImageSnapshot removeFromSuperview];
         [self.backView removeFromSuperview];
         
+        if (self.context == nil) {
+            return;
+        }
+        
         UINavigationController *fromViewController = (UINavigationController*)[self.context viewControllerForKey:UITransitionContextFromViewControllerKey];
         if (self.moviePlayer) {
             if (self.toTransform != self.orientationTransformBeforeDismiss) {
