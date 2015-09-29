@@ -9,8 +9,7 @@ Pod::Spec.new do |s|
   s.summary      = 'Gallery for iOS 7 Devices.'
   s.platform     =  :ios
   s.source = {
-    :git => 'https://github.com/autoru/MHVideoPhotoGallery.git',
-    :tag => 'v2.0'
+    :git => 'https://github.com/autoru/MHVideoPhotoGallery.git'
   }
 
   s.dependency "SDWebImage"
