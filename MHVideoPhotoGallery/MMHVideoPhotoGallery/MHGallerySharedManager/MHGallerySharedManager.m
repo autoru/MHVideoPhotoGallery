@@ -280,59 +280,6 @@
 }
 
 
--(void)getYoutubeThumbImage:(NSString*)URL
-               successBlock:(void (^)(UIImage *image,NSUInteger videoDuration,NSError *error))succeedBlock{
-    UIImage *image = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:URL];
-    if (image) {
-        NSMutableDictionary *dict = [self durationDict];
-        succeedBlock(image,[dict[URL] integerValue],nil);
-    }else{
-        NSString *videoID = [[URL componentsSeparatedByString:@"?v="] lastObject];
-        NSString *infoURL = [NSString stringWithFormat:MHYoutubeInfoBaseURL,videoID];
-        NSMutableURLRequest *httpRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:infoURL]
-                                                                   cachePolicy:NSURLRequestUseProtocolCachePolicy
-                                                               timeoutInterval:10];
-        [NSURLConnection sendAsynchronousRequest:httpRequest
-                                           queue:NSOperationQueue.new
-                               completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                                   if (!connectionError) {
-                                       NSError *error;
-                                       NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:data
-                                                                                                options:NSJSONReadingAllowFragments
-                                                                                                  error:&error];
-                                       dispatch_async(dispatch_get_main_queue(), ^(void){
-                                           if (jsonData.count) {
-                                               NSMutableDictionary *dictToSave = [self durationDict];
-                                               dictToSave[URL] = @([jsonData[@"data"][@"duration"] integerValue]);
-                                               [self setObjectToUserDefaults:dictToSave];
-                                               NSString *thumbURL = NSString.new;
-                                               if (self.youtubeThumbQuality == MHYoutubeThumbQualityHQ) {
-                                                   thumbURL = jsonData[@"data"][@"thumbnail"][@"hqDefault"];
-                                               }else if (self.youtubeThumbQuality == MHYoutubeThumbQualitySQ){
-                                                   thumbURL = jsonData[@"data"][@"thumbnail"][@"sqDefault"];
-                                               }
-                                               [SDWebImageManager.sharedManager downloadImageWithURL:[NSURL URLWithString:thumbURL]
-                                                                                             options:SDWebImageContinueInBackground
-                                                                                            progress:nil
-                                                                                           completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-                                                                                               
-                                                                                               [SDImageCache.sharedImageCache removeImageForKey:thumbURL];
-                                                                                               [SDImageCache.sharedImageCache storeImage:image
-                                                                                                                                  forKey:URL];
-                                                                                               
-                                                                                               succeedBlock(image,[jsonData[@"data"][@"duration"] integerValue],nil);
-                                                                                           }];
-                                           }
-                                       });
-                                   }else{
-                                       succeedBlock(nil,0,connectionError);
-                                   }
-                               }];
-    }
-    
-}
-
-
 -(void)getVimdeoThumbImage:(NSString*)URL
               successBlock:(void (^)(UIImage *image,NSUInteger videoDuration,NSError *error))succeedBlock{
     
@@ -406,16 +353,13 @@
                      successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
                          succeedBlock(image,videoDuration,error);
                      }];
-    }else if([urlString rangeOfString:@"youtube.com"].location != NSNotFound) {
-        [self getYoutubeThumbImage:urlString
-                      successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
-                          succeedBlock(image,videoDuration,error);
-                      }];
-    }else{
-        [self createThumbURL:urlString
-                successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
-                    succeedBlock(image,videoDuration,error);
-                }];
+    }else {
+        [self getURLForMediaPlayer:urlString successBlock:^(NSURL *URL, NSError *error) {
+            [self createThumbURL:[URL absoluteString]
+                    successBlock:^(UIImage *image, NSUInteger videoDuration, NSError *error) {
+                        succeedBlock(image,videoDuration,error);
+                    }];
+        }];
     }
 }
 
