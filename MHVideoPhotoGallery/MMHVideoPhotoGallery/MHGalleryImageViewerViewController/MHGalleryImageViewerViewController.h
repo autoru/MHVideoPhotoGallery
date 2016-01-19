@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import "MHGallery.h"
+#import "MHGalleryLabel.h"
+#import "MHScrollViewLabel.h"
 
 @class MHTransitionShowOverView;
 @class MHTransitionDismissMHGallery;
@@ -23,10 +25,8 @@
 
 @property (nonatomic, strong)          NSArray *galleryItems;
 @property (nonatomic, strong)          UIToolbar *toolbar;
-@property (nonatomic, strong)          UITextView *titleView;
-@property (nonatomic, strong)          UIToolbar *titleViewBackground;
-@property (nonatomic, strong)          UITextView *descriptionView;
-@property (nonatomic, strong)          UIToolbar *descriptionViewBackground;
+@property (nonatomic, strong)          MHScrollViewLabel *titleLabel;
+@property (nonatomic, strong)          MHScrollViewLabel *descriptionLabel;
 @property (nonatomic)                  NSInteger pageIndex;
 @property (nonatomic, strong)          UIPageViewController *pageViewController;
 @property (nonatomic, strong)          UIImageView *presentingFromImageView;
@@ -43,6 +43,7 @@
 -(void)playStopButtonPressed;
 -(void)changeToPauseButton;
 -(void)changeToPlayButton;
+-(void)reloadData;
 @end
 
 @interface MHImageViewController : UIViewController<UIScrollViewDelegate,UIGestureRecognizerDelegate>
