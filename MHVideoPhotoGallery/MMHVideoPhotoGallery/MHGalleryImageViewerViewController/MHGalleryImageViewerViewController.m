@@ -287,6 +287,7 @@
     [self.bottomSuperView mas_updateConstraints:^(MASConstraintMaker *make) {
         make.bottom.mas_equalTo(self.toolbar.mas_top);
     }];
+    [self.view layoutIfNeeded];
 }
 
 - (void)attributedLabel:(TTTAttributedLabel *)label
